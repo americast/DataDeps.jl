@@ -1,5 +1,4 @@
-module segregate
-
+include("./fetch.jl")
 
 function readdata(data::Vector{UInt8})
     n = Int(length(data)/3073)
@@ -14,9 +13,10 @@ function readdata(data::Vector{UInt8})
     x, y
 end
 
-function segdata(name::AbstractText, dir="")
+function segdata(name::AbstractString, dir="")
     if(dir=="")
       dir=joinpath(Pkg.dir("DataDeps"), "datasets/$(name)")
+    end
     println("Train data in series or single file ?\n1) Series\n2) Single\n")
     choice=parse(Int,readline(STDIN))
     s_start=1; s_end=-1; s_name=""; files=[]
@@ -34,14 +34,14 @@ function segdata(name::AbstractText, dir="")
                 break
             end
         end
-        if (flag==1) i+=1 end
-        for i in (s_start:s_end)
+        if (flag==0) i+=1 end
+        for j in (s_start:s_end)
             file="$(dir)/$(s_name[1:i-1])"
-            file*="$(i)"
+            file*="$(j)"
             file*="$(s_name[i+1:end])"
             push!(files,file)
         end
-                
+
     elseif (choice==2)
         println("Single name: ")
         s_name=readline(STDIN)
@@ -50,7 +50,17 @@ function segdata(name::AbstractText, dir="")
         println("Invalid choice")
         return
     end
-    all(isfile, files) || getdata(dir)
+    fileflag=0
+    for file in readdir(dir)
+        println(file)
+        if (isfile(joinpath(dir,file)))
+            fileflag=1
+            break
+        end
+    end
+    if(fileflag==0)
+        getdata()
+    end
     data = UInt8[]
     for file in files
         append!(data, open(read,file))
@@ -58,10 +68,18 @@ function segdata(name::AbstractText, dir="")
     readdata(data)
 end
 
-function traindata(name::AbstractText, dir="")
+function traindata(name::AbstractString, dir="")
+    try
+        f=open(joinpath(Pkg.dir("DataDeps"),"datasets/downloads.json"), "r")
+        dicttxt = readstring(f)
+        close(f)
+        dictall=JSON.parse(dicttxt)
+        dir=dictall[name]
+    end
     segdata(name,dir)
 end
-
-function testdata(name::AbstractText, dir="")
+#=
+function testdata(name::AbstractString, dir="")
     segdata(name,dir)
 end
+=#

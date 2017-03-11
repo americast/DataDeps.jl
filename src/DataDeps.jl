@@ -1,26 +1,26 @@
-export DataDeps
-
 module DataDeps
 
-include("fetch.jl")
-include("segregate.jl")
+import JSON
+include("./segregate.jl")
+export add, list, traindata, testdata
 
 function add()
+    #=
     println("Enter URL: ")
-    url=readline(STDIN)
+    url=chomp(readline(STDIN))
     println("Enter name of the dataset: ")
-    name=readline(STDIN)
-    dirhere=joinpath(Pkg.dir("DataDeps"), name)
-    getdata(name, url)
+    name=chomp(readline(STDIN))
+    dirhere=joinpath(Pkg.dir("DataDeps"), "datasets/$(name)")
+    =#
+    getdata()
 end
 
-function list(dir::AbstractText)
+function list(dir::AbstractString)
   dirhere=Pkg.dir("DataDeps")
   if (list!="")
     dirhere=dir
   end
   run(`ls $(dirhere)`)
 end
-  
 
 end #module
