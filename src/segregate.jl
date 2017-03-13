@@ -1,19 +1,7 @@
 include("./fetch.jl")
+include("./parsedata.jl")
 
-function readdata(data::Vector{UInt8})
-    n = Int(length(data)/3073)
-    x = Array(Float64, 3072, n)
-    y = Array(Int, n)
-    for i = 1:n
-        k = (i-1) * 3073 + 1
-        y[i] = Int(data[k])
-        x[:,i] = data[k+1:k+3072] / 255
-    end
-    x = reshape(x, 32, 32, 3, n)
-    x, y
-end
-
-function segdata(name::AbstractString, dir="")
+function segdata(name::AbstractString, typedata, dir="")
     if(dir=="")
       dir=joinpath(Pkg.dir("DataDeps"), "datasets/$(name)")
     end
@@ -52,7 +40,6 @@ function segdata(name::AbstractString, dir="")
     end
     fileflag=0
     for file in readdir(dir)
-        println(file)
         if (isfile(joinpath(dir,file)))
             fileflag=1
             break
@@ -65,10 +52,17 @@ function segdata(name::AbstractString, dir="")
     for file in files
         append!(data, open(read,file))
     end
-    readdata(data)
+    #println(data)
+    #println("About to read data")
+    readline(STDIN)
+    if (typedata=="matrix")
+      readMat(data)
+    else
+      readLine(dir, files)
+    end
 end
 
-function traindata(name::AbstractString, dir="")
+function traindata(name::AbstractString, typedata="matrix", dir="")
     try
         f=open(joinpath(Pkg.dir("DataDeps"),"datasets/downloads.json"), "r")
         dicttxt = readstring(f)
@@ -76,7 +70,7 @@ function traindata(name::AbstractString, dir="")
         dictall=JSON.parse(dicttxt)
         dir=dictall[name]
     end
-    segdata(name,dir)
+    segdata(name,typedata,dir)
 end
 #=
 function testdata(name::AbstractString, dir="")
