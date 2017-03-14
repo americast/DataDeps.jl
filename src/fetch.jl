@@ -1,17 +1,6 @@
 using BinDeps
 
-function getdata(dir::AbstractString="",name::AbstractString="", url::AbstractString="")
-    if (url=="")
-      println("Enter URL: ")
-      url=chomp(readline(STDIN))
-    end
-    if (name=="")
-      println("Enter name of the dataset: ")
-      name=chomp(readline(STDIN))
-    end
-    if(dir=="")
-        dir=joinpath(Pkg.dir("DataDeps"), "datasets/$(name)")
-    end
+function getdata(dir::AbstractString,name::AbstractString, url::AbstractString)
     mkpath(dir)
     println(url)
     path = download(url)
@@ -25,7 +14,7 @@ function getdata(dir::AbstractString="",name::AbstractString="", url::AbstractSt
     try
         f=open("downloads.json", "r")
         dicttxt = readall(f)
-        f.close()
+        close(f)
         dictall=JSON.parse(dicttxt)
     end
     dictall[name]=dir

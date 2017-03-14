@@ -1,10 +1,7 @@
 include("./fetch.jl")
 include("./parsedata.jl")
 
-function segdata(name::AbstractString, typedata, dir="")
-    if(dir=="")
-      dir=joinpath(Pkg.dir("DataDeps"), "datasets/$(name)")
-    end
+function segdata(name::AbstractString, typedata::AbstractString, dir::AbstractString)
     println("Train data in series or single file ?\n1) Series\n2) Single\n")
     choice=parse(Int,readline(STDIN))
     s_start=1; s_end=-1; s_name=""; files=[]
@@ -52,8 +49,6 @@ function segdata(name::AbstractString, typedata, dir="")
     for file in files
         append!(data, open(read,file))
     end
-    #println(data)
-    #println("About to read data")
     readline(STDIN)
     if (typedata=="matrix")
       readMat(data)
@@ -62,7 +57,10 @@ function segdata(name::AbstractString, typedata, dir="")
     end
 end
 
-function traindata(name::AbstractString, typedata="matrix", dir="")
+function traindata(name::AbstractString, typedata::AbstractString="matrix", dir::AbstractString="")
+    if(dir=="")
+      dir=joinpath(Pkg.dir("DataDeps"), "datasets/$(name)")
+    end
     try
         f=open(joinpath(Pkg.dir("DataDeps"),"datasets/downloads.json"), "r")
         dicttxt = readstring(f)
