@@ -5,9 +5,10 @@ function getdata(dir::AbstractString,name::AbstractString, url::AbstractString)
     println(url)
     path = download(url)
     run(unpack_cmd(path,dir,".gz",".tar"))
-    if(isdir(readdir(dir)[1]))
-        dirnext=readdir(dir)[1]
-        dir=joinpath(dir,dirnext)
+    dirnext=readdir(dir)[1]
+    dirnext=joinpath(dir,dirnext)
+    if(isdir(dirnext))
+        dir=dirnext
     end
     dictall = Dict()
     cd(joinpath(Pkg.dir("DataDeps"),"datasets"))

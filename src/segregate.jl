@@ -1,17 +1,24 @@
 include("./fetch.jl")
 include("./parsedata.jl")
+choice=0; s_start=1; s_end=-1; s_name=""
+function setseries(name::AbstractString, ch::AbstractString="single", st::Int64=1,  en::Int64=-1)
+    global choice, s_start, s_end, s_name
+    s_name=name
+    if (ch=="series")
+        choice=1
+    elseif (ch=="single")
+        choice=2
+    else
+        error("Pl. set type as \"single\" or \"series\" only.")
+    end
+    s_start=st
+    s_end=en
+    return 0
+end
 
 function segdata(name::AbstractString, typedata::AbstractString, dir::AbstractString)
-    println("Train data in series or single file ?\n1) Series\n2) Single\n")
-    choice=parse(Int,readline(STDIN))
     s_start=1; s_end=-1; s_name=""; files=[]
     if (choice==1)
-        println("Series start: ")
-        s_start=parse(Int,readline(STDIN))
-        println("Series end: ")
-        s_end=parse(Int,readline(STDIN))
-        println("Series name, replace iteration with *: ")
-        s_name=chomp(readline(STDIN))
         i=0; flag=0
         for i in 1:length(s_name)
             if s_name[i]=='*'
@@ -26,13 +33,10 @@ function segdata(name::AbstractString, typedata::AbstractString, dir::AbstractSt
             file*="$(s_name[i+1:end])"
             push!(files,file)
         end
-
     elseif (choice==2)
-        println("Single name: ")
-        s_name=readline(STDIN)
         files=["$(s_name)"]
     else
-        println("Invalid choice")
+        error("Please call setseries() first.")
         return
     end
     fileflag=0
@@ -43,13 +47,12 @@ function segdata(name::AbstractString, typedata::AbstractString, dir::AbstractSt
         end
     end
     if(fileflag==0)
-        getdata()
+        error("Please call add(<url>) to download dataset first.")
     end
     data = UInt8[]
     for file in files
         append!(data, open(read,file))
     end
-    readline(STDIN)
     if (typedata=="matrix")
       readMat(data)
     else

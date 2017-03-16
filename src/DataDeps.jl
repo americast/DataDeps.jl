@@ -2,13 +2,14 @@ module DataDeps
 
 import JSON
 include("./segregate.jl")
-export add, list, traindata, testdata
+export add, list, traindata, testdata, setseries
 
 function add(url::AbstractString, name::AbstractString, dir::AbstractString="")
     if (dir=="")
         dir=joinpath(Pkg.dir("DataDeps"), "datasets/$(name)")
     end
     getdata(dir, name, url)
+    return 0
 end
 
 function list(dir::AbstractString="")
@@ -23,11 +24,14 @@ function list(dir::AbstractString="")
         close(f)
         dictall=JSON.parse(dicttxt)
     end
+    textout=""
     for i in dictall
         if (dir==i[2][1:length(dir)])
-            println(i[1])
+            textout*="$(i[1])\n"
         end
     end
+    println(textout)
+    return textout
 end
 
 end #module
